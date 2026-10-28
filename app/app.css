@@ -34,3 +34,8 @@ body {
     radial-gradient(50rem 30rem at 90% 0%, rgb(236 72 153 / 0.18), transparent 60%);
   background-repeat: no-repeat;
 }
+
+button:not(:disabled),
+[role="button"]:not([aria-disabled="true"]) {
+  cursor: pointer;
+}

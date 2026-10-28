@@ -4,6 +4,8 @@ Paste a YouTube video link and download its thumbnail in every available resolut
 
 Built with **React Router v7** (framework mode, successor of Remix), **TypeScript**, **Tailwind CSS v4** and **sharp**, ready to deploy on **Vercel**.
 
+**Live demo:** https://youtube-thumbnail-puce.vercel.app/
+
 ![Home screen](docs/screenshots/home.png)
 
 ## Features
@@ -19,7 +21,7 @@ Built with **React Router v7** (framework mode, successor of Remix), **TypeScrip
 
 ## How to use
 
-1. Open the app.
+1. Open the app (https://youtube-thumbnail-puce.vercel.app/).
 2. Paste the video link into the search field and click **Search** (or press Enter).
 3. Pick the resolution you want:
    - **JPG**: opens the original image in a new tab (right-click to save).
