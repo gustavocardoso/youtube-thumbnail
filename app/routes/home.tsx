@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Form, useNavigation } from "react-router";
 import type { Route } from "./+types/home";
 import { extractVideoId, getThumbnails, type Thumbnail } from "../lib/youtube";
+import { trackEvent } from "../lib/analytics";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -34,11 +35,22 @@ const ICONS = {
   alert: "M12 8v4m0 4h.01M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z",
 };
 
-function ConvertButton({ href, format }: { href: string; format: "avif" | "webp" }) {
+function ConvertButton({
+  href,
+  format,
+  resolution,
+  videoId,
+}: {
+  href: string;
+  format: "avif" | "webp";
+  resolution: string;
+  videoId: string;
+}) {
   const [loading, setLoading] = useState(false);
   const [failed, setFailed] = useState(false);
 
   async function onClick() {
+    trackEvent("download_thumbnail", { format, resolution, video_id: videoId });
     setLoading(true);
     setFailed(false);
     try {
@@ -125,12 +137,13 @@ function ThumbnailCard({ id, videoId, thumb, index }: { id: string; videoId: str
               target="_blank"
               rel="noreferrer"
               title="Open original JPG"
+              onClick={() => trackEvent("download_thumbnail", { format: "jpg", resolution: id, video_id: videoId })}
               className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-white/10 px-3 py-2 text-sm font-medium text-white/90 transition hover:bg-white/20"
             >
               <Icon d={ICONS.external} /> JPG
             </a>
-            <ConvertButton href={`/api/convert?v=${videoId}&q=${id}&format=webp`} format="webp" />
-            <ConvertButton href={`/api/convert?v=${videoId}&q=${id}&format=avif`} format="avif" />
+            <ConvertButton href={`/api/convert?v=${videoId}&q=${id}&format=webp`} format="webp" resolution={id} videoId={videoId} />
+            <ConvertButton href={`/api/convert?v=${videoId}&q=${id}&format=avif`} format="avif" resolution={id} videoId={videoId} />
           </div>
         )}
       </div>
@@ -161,7 +174,14 @@ export default function Home({ loaderData }: Route.ComponentProps) {
         </p>
       </header>
 
-      <Form method="get" className="mx-auto mb-12 w-full max-w-2xl">
+      <Form
+        method="get"
+        className="mx-auto mb-12 w-full max-w-2xl"
+        onSubmit={(e) => {
+          const value = new FormData(e.currentTarget).get("url");
+          trackEvent("search", { search_term: typeof value === "string" ? value.trim() : "" });
+        }}
+      >
         <div className="flex items-center gap-2 rounded-2xl border border-white/10 bg-white/[0.06] p-2 shadow-2xl shadow-indigo-500/10 backdrop-blur transition focus-within:border-indigo-400/60 focus-within:ring-4 focus-within:ring-indigo-500/20">
           <Icon d={ICONS.search} className="ml-3 hidden size-5 shrink-0 text-white/40 sm:block" />
           <input
@@ -193,7 +213,11 @@ export default function Home({ loaderData }: Route.ComponentProps) {
         <section>
           <div className="mb-6 flex items-center justify-between">
             <h2 className="text-xl font-bold">Available thumbnails</h2>
-            <a href="/" className="text-sm font-medium text-white/60 transition hover:text-white">
+            <a
+              href="/"
+              onClick={() => trackEvent("new_search", { video_id: videoId })}
+              className="text-sm font-medium text-white/60 transition hover:text-white"
+            >
               New search →
             </a>
           </div>
@@ -222,6 +246,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
               href="https://github.com/gustavocardoso"
               target="_blank"
               rel="noreferrer"
+              onClick={() => trackEvent("github_click", { link_url: "https://github.com/gustavocardoso" })}
               className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 transition hover:border-white/20 hover:bg-white/10 hover:text-white"
             >
               <svg viewBox="0 0 24 24" fill="currentColor" className="size-4">
